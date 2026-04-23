@@ -278,7 +278,8 @@ const C={bg:"#fff",bgSub:"#f5f4f0",bgInfo:"#E6F1FB",bgWarn:"#FCEBEB",bgOk:"#EAF3
 const cardStyle  = {background:C.bg,border:`0.5px solid ${C.border}`,borderRadius:10,padding:12};
 const metStyle   = {background:C.bgSub,borderRadius:8,padding:"10px 13px"};
 const btnStyle   = (on)=>({padding:"8px 14px",minHeight:44,fontSize:13,borderRadius:7,border:`0.5px solid ${C.border}`,cursor:"pointer",background:on?C.textPri:"none",color:on?C.bg:C.textSec,display:"inline-flex",alignItems:"center",justifyContent:"center"});
-const navBtnStyle= (dis)=>({padding:"8px 14px",minHeight:44,fontSize:13,borderRadius:6,border:`0.5px solid ${C.border}`,background:"none",cursor:dis?"default":"pointer",opacity:dis?.35:1,display:"inline-flex",alignItems:"center"});
+// 【修正箇所】 dis?.35:1 を dis ? 0.35 : 1 に修正
+const navBtnStyle= (dis)=>({padding:"8px 14px",minHeight:44,fontSize:13,borderRadius:6,border:`0.5px solid ${C.border}`,background:"none",cursor:dis?"default":"pointer",opacity:dis ? 0.35 : 1,display:"inline-flex",alignItems:"center"});
 const labelStyle = {fontSize:11,color:C.textMut,fontWeight:500,textTransform:"uppercase",letterSpacing:".04em"};
 const inputStyle = {fontSize:13,padding:"5px 9px",borderRadius:7,border:`0.5px solid ${C.border}`,height:36,background:C.bg,color:C.textPri,boxSizing:"border-box"};
 const DOW        = ["月","火","水","木","金","土","日"];
@@ -568,33 +569,35 @@ export default function App() {
         <button onClick={()=>setWeek(w=>Math.min(3,w+1))} style={navBtnStyle((week+1)*7>=30)}>次週 →</button>
       </div>
       <div style={{overflowX:"auto",WebkitOverflowScrolling:"touch"}}>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(7,minmax(110px,1fr))",gap:5,minWidth:560}}>
-        {weekDays.map((d,i)=>(
-          <div key={d.d} style={{border:`0.5px solid ${C.border}`,borderRadius:7,padding:6,minHeight:120,background:C.bg}}>
-            <div style={{fontSize:10,color:C.textMut,marginBottom:4,fontWeight:500}}>{d.d}日({DOW[i%7]})</div>
-            {[{label:"昼",mn:d.l,ek:`${d.d}_l`},{label:"夜",mn:d.di,ek:`${d.d}_d`}].map(({label,mn,ek})=>{
-              const cost=calcMealCost(mn,people,rm,im);
-              const hasUrgent=rm[mn]?.ing.some(i=>{ const inv=inventory[i.n]; const tot=(inv?.g??0)+(inv?.count??0)+(inv?.ml??0); return tot>0&&(im[i.n]?.shelfDays??99)<=3; });
-              return(
-                <div key={label}>
-                  <div style={{background:hasUrgent?"#FAEEDA":C.bgSub,borderRadius:4,padding:"4px 5px",marginBottom:2,cursor:"pointer",border:hasUrgent?"0.5px solid #FAC775":"none"}}
-                    onClick={()=>toggleExp(ek)} onContextMenu={e=>{e.preventDefault();handleCook(mn);}}>
-                    <div style={{fontSize:9,color:C.textMut}}>{label}{hasUrgent&&" ⚡"}</div>
-                    <div style={{fontSize:10,lineHeight:1.3,marginTop:1}}>{mn||"—"}</div>
-                    <div style={{fontSize:9,color:C.textSec}}>¥{cost}</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(7,minmax(110px,1fr))",gap:5,minWidth:560}}>
+          {weekDays.map((d,i)=>(
+            <div key={d.d} style={{border:`0.5px solid ${C.border}`,borderRadius:7,padding:6,minHeight:120,background:C.bg}}>
+              <div style={{fontSize:10,color:C.textMut,marginBottom:4,fontWeight:500}}>{d.d}日({DOW[i%7]})</div>
+              {[{label:"昼",mn:d.l,ek:`${d.d}_l`},{label:"夜",mn:d.di,ek:`${d.d}_d`}].map(({label,mn,ek})=>{
+                const cost=calcMealCost(mn,people,rm,im);
+                const hasUrgent=rm[mn]?.ing.some(i=>{ const inv=inventory[i.n]; const tot=(inv?.g??0)+(inv?.count??0)+(inv?.ml??0); return tot>0&&(im[i.n]?.shelfDays??99)<=3; });
+                return(
+                  <div key={label}>
+                    <div style={{background:hasUrgent?"#FAEEDA":C.bgSub,borderRadius:4,padding:"4px 5px",marginBottom:2,cursor:"pointer",border:hasUrgent?"0.5px solid #FAC775":"none"}}
+                      onClick={()=>toggleExp(ek)} onContextMenu={e=>{e.preventDefault();handleCook(mn);}}>
+                      <div style={{fontSize:9,color:C.textMut}}>{label}{hasUrgent&&" ⚡"}</div>
+                      <div style={{fontSize:10,lineHeight:1.3,marginTop:1}}>{mn||"—"}</div>
+                      <div style={{fontSize:9,color:C.textSec}}>¥{cost}</div>
+                    </div>
+                    {expanded[ek]&&<IngrBreakdown mealName={mn} rm={rm} im={im}/>}
                   </div>
-                  {expanded[ek]&&<IngrBreakdown mealName={mn} rm={rm} im={im}/>}
-                </div>
-              );
-            })}
-            <div style={{marginTop:4,textAlign:"right"}}>
-              <button onClick={()=>{handleCook(d.l);handleCook(d.di);}} style={{fontSize:8,color:C.textMut,border:`0.5px solid ${C.border}`,background:"none",borderRadius:3,padding:"1px 5px",cursor:"pointer"}}>調理済</button>
+                );
+              })}
+              <div style={{marginTop:4,textAlign:"right"}}>
+                <button onClick={()=>{handleCook(d.l);handleCook(d.di);}} style={{fontSize:8,color:C.textMut,border:`0.5px solid ${C.border}`,background:"none",borderRadius:3,padding:"1px 5px",cursor:"pointer"}}>調理済</button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <p style={{fontSize:10,color:C.textMut,marginTop:8}}>※ カードクリック→食材表示 / 右クリック or「調理済」→在庫消費 / ⚡=期限注意食材使用</p>
       </div>
-      <p style={{fontSize:10,color:C.textMut,marginTop:8}}>※ カードクリック→食材表示 / 右クリック or「調理済」→在庫消費 / ⚡=期限注意食材使用</p>
-    </div>
+    {/* 【修正箇所】親のdivタグを閉じるための </div> を追加しました */}
+    </div> 
   );
 
   // ============================================================
@@ -620,7 +623,8 @@ export default function App() {
         )}
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:10}}>
           {shopSessions.map(s=>(
-            <div key={s.key} style={{...cardStyle,opacity:s.isDone?.65:1}}>
+            // 【修正箇所】 s.isDone?.65:1 を s.isDone ? 0.65 : 1 に修正
+            <div key={s.key} style={{...cardStyle,opacity:s.isDone ? 0.65 : 1}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,flexWrap:"wrap",gap:6}}>
                 <span style={{fontSize:12,fontWeight:500}}>第{s.wIdx+1}週 {s.half===0?"前半(月〜水)":"後半(木〜土)"}</span>
                 <div style={{display:"flex",gap:5,alignItems:"center"}}>
