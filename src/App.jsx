@@ -600,7 +600,7 @@ export default function App() {
   // ============================================================
   // RENDER: 買い物リスト
   // ============================================================
-  const renderShop = () => {
+  function renderShop() {
     const allItems   = shopSessions.flatMap(s=>s.items);
     const surpItems  = allItems.filter(it=>it.surplus>0&&!it.surplusOk);
     const frozenItems= allItems.filter(it=>it.frozen&&!it.surplusOk);
@@ -662,7 +662,7 @@ export default function App() {
   // ============================================================
   // RENDER: 食費まとめ
   // ============================================================
-  const renderCost = () => {
+  function renderCost() {
     const rows=Array.from({length:4},(_,w)=>{
       const s=w*7,e=Math.min(s+7,30);
       const days=sched.slice(s,e);
@@ -734,7 +734,7 @@ export default function App() {
   // ============================================================
   // RENDER: 食材・在庫
   // ============================================================
-  const renderIngr = () => {
+  function renderIngr() {
     const allIngr=Object.entries(im);
     const inStock=allIngr.filter(([n])=>(inventory[n]?.g??0)+(inventory[n]?.count??0)+(inventory[n]?.ml??0)>0);
     return(
@@ -811,7 +811,7 @@ export default function App() {
   // ============================================================
   // RENDER: 改善提案
   // ============================================================
-  const renderTips = () => {
+  function renderTips() {
     const polName={balance:"バランス重視",save:"節約重視",nutr:"栄養重視"}[pol];
     const allMealList=sched.flatMap(d=>[{name:d.l,cost:calcMealCost(d.l,people,rm,im)},{name:d.di,cost:calcMealCost(d.di,people,rm,im)}]);
     const sorted=[...allMealList].sort((a,b)=>b.cost-a.cost);
@@ -875,7 +875,7 @@ export default function App() {
   // ============================================================
   // RENDER: マスタ管理
   // ============================================================
-  const renderMaster = () => {
+  function renderMaster() {
     const imEntries = Object.entries(im);
     const rmEntries = Object.entries(rm);
 
